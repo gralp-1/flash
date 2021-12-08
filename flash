@@ -1,0 +1,134 @@
+#!/Library/Frameworks/Python.framework/Versions/3.10/bin/python3
+
+import json
+import sys
+import time
+from fire import Fire
+import webbrowser
+
+
+"""
+This is a program to organize leitner flashcards.
+
+Steps:
+ - Three modes, add, increment and see today's cards
+ - Add mode:
+    - Add a new card with URL and current date, when added box is already 0
+ - Increment mode:
+    - Increment box number for a card, if box is already maxed out, remove card
+ - See today's cards mode:
+    - See cards that are due today
+"""
+
+
+"""
+JSON schema:
+{
+	url: {
+		box: int,
+		date: str
+	}
+}
+"""
+
+def add(url):
+	"""
+	Add a new card to the flashcards file and overwrite it
+	"""
+
+	with open("flashcards.json", 'r') as f:
+		flashcards = json.load(f)
+
+	flashcards[url] = {
+		'box': 1,
+		'date': time.strftime('%Y-%m-%d')
+	}
+
+	with open("flashcards.json", 'w') as f:
+		json.dump(flashcards, f)
+
+
+
+def increment(url):
+	"""
+	Increment the box number for a card
+	"""
+
+	with open("flashcards.json", 'r') as f:
+		flashcards = json.load(f)
+
+	box = flashcards[url]['box']
+	date = flashcards[url]['date']
+
+
+	"""
+	Box 1: add 2 day
+	Box 2: add 5 days
+	Box 3: add 9 days
+	Box 4: add 14 days
+	Box 5: Pop card
+	"""
+	# Redo wit a switch statement in python 3.9
+	if box == 1:
+		date = time.strftime('%Y-%m-%d', time.localtime(time.time() + 2*24*60*60))
+	elif box == 2:
+		date = time.strftime('%Y-%m-%d', time.localtime(time.time() + 5*24*60*60))
+	elif box == 3:
+
+		date = time.strftime('%Y-%m-%d', time.localtime(time.time() + 9*24*60*60))
+	elif box == 4:
+		date = time.strftime('%Y-%m-%d', time.localtime(time.time() + 14*24*60*60))
+	elif box == 5:
+		print(flashcards.pop(url))
+
+	
+	with open("flashcards.json", 'w') as f:
+		json.dump(flashcards, f)
+	return
+
+
+def reset(url):
+	"""
+	Set the box to 1 for the url
+	"""
+	
+	with open("flashcards.json", 'r') as f:
+		flashcards = json.load(f)
+
+	flashcards[url]['box'] = 1
+
+	with open("flashcards.json", 'w') as f:
+		json.dump(flashcards, f)
+	
+
+
+def today(o: bool = False):
+	"""
+	See today's cards
+	"""
+	
+	with open("flashcards.json", 'r') as f:
+		flashcards = json.load(f)
+
+	
+
+	for url in flashcards:
+		if flashcards[url]['date'] == time.strftime('%Y-%m-%d'):
+			if o:
+				webbrowser.open(url)
+				return
+			print(url)
+
+
+if __name__ == '__main__':
+	# Load config
+	with open('flashcards.json') as f:
+		config = json.load(f)
+	
+	command_index = {
+		"add": add,
+		"increment": increment,
+		"today": today,
+	}
+
+	Fire(command_index)

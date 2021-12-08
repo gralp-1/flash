@@ -14,3 +14,9 @@ It uses a date system of
 | Box 3 | 5 Days                      |
 | Box 4 | 9 Days                      |
 | Box 5 | 14 Days                     |
+
+## Instalation
+You'll have to go through the code and change stuff for it to work for now, I might change this later or you can now, one step that is important is
+```
+cd ~ && touch flashcards.json
+```
